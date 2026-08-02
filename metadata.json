@@ -1,0 +1,8 @@
+{
+  "name": "TulisCeria - Belajar Menulis PAUD & TK",
+  "description": "Aplikasi interaktif belajar menulis huruf besar, huruf kecil, dan angka untuk PAUD dan TK dengan evaluasi Gemini AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

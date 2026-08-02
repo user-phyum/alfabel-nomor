@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Menulis Ceria - PAUD & TK</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Fredoka & Quicksand untuk tampilan ramah anak -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandYellow: '#FFD166',
+                        brandPink: '#FF70A6',
+                        brandPurple: '#70D6FF',
+                        brandGreen: '#06D6A0',
+                        brandOrange: '#FF9F1C'
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Pattern latar belakang ceria */
+        .bg-pattern {
+            background-color: #fefce8;
+            background-image: radial-gradient(#fde047 1.5px, transparent 1.5px), radial-gradient(#fde047 1.5px, #fefce8 1.5px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+
+        /* Garis buku tulis untuk canvas */
+        .ruled-line-bg {
+            background-image: 
+                linear-gradient(to bottom, transparent 20%, #ef4444 21%, #ef4444 22%, transparent 23%),
+                linear-gradient(to bottom, transparent 49%, #94a3b8 50%, #94a3b8 51%, transparent 52%),
+                linear-gradient(to bottom, transparent 78%, #3b82f6 79%, #3b82f6 80%, transparent 81%);
+            background-size: 100% 100%;
+        }
+
+        /* Animation pulse halus */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(-3%); }
+            50% { transform: translateY(0); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 2s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF70A6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Header App -->
+    <header class="bg-white border-b-4 border-amber-300 shadow-md py-2 px-3 sm:px-6 sticky top-0 z-30">
+        <div class="max-w-[1500px] mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-400 rounded-2xl flex items-center justify-center shadow-md transform -rotate-6">
+                    <i class="fa-solid fa-pen-nib text-xl sm:text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-3xl font-bold text-amber-500 tracking-wide leading-none">
+                        Tulis<span class="text-pink-500">Ceria</span>
+                    </h1>
+                    <p class="text-[10px] sm:text-xs font-quicksand font-bold text-slate-400">Modul PAUD & TK</p>
+                </div>
+            </div>
+
+            <!-- Selector Kategori / Modul -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-2xl border-2 border-slate-200 text-xs sm:text-sm">
+                <button id="tab-uppercase" onclick="selectCategory('uppercase')" class="px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-xl font-bold transition-all bg-amber-400 text-white shadow-sm">
+                    <i class="fa-solid fa-font mr-1"></i> Besar (A-Z)
+                </button>
+                <button id="tab-lowercase" onclick="selectCategory('lowercase')" class="px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-xl font-bold text-slate-500 hover:text-slate-700 transition-all">
+                    <i class="fa-solid fa-italic mr-1"></i> Kecil (a-z)
+                </button>
+                <button id="tab-numbers" onclick="selectCategory('numbers')" class="px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-xl font-bold text-slate-500 hover:text-slate-700 transition-all">
+                    <i class="fa-solid fa-hashtag mr-1"></i> Angka (0-9)
+                </button>
+            </div>
+
+            <!-- Stats & Menu Rekap -->
+            <div class="flex items-center space-x-2">
+                <!-- Sound ON/OFF Toggle Button -->
+                <button id="btn-toggle-sound" onclick="toggleSoundMode()" class="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-bold text-xs sm:text-sm border-2 transition-all flex items-center space-x-1.5 bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200" title="Klik untuk menyalakan/mematikan suara otomatis">
+                    <i id="sound-icon" class="fa-solid fa-volume-high text-sm sm:text-base text-emerald-600"></i>
+                    <span id="sound-label" class="hidden sm:inline">Suara: ON</span>
+                </button>
+
+                <div class="bg-pink-100 text-pink-600 border-2 border-pink-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-1.5">
+                    <i class="fa-solid fa-star text-amber-400 text-base sm:text-lg"></i>
+                    <span id="star-count">0 Bintang</span>
+                </div>
+                <button onclick="openSummaryModal()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center space-x-1">
+                    <i class="fa-solid fa-clipboard-list text-sm sm:text-base"></i>
+                    <span class="hidden sm:inline">Rekap Pengerjaan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-[1500px] mx-auto w-full px-2 sm:px-6 py-3 sm:py-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
+        
+        <!-- Left Side: Compact Sample Display & Character Navigation -->
+        <section class="lg:col-span-4 xl:col-span-3 bg-white p-3 sm:p-4 rounded-3xl border-4 border-amber-200 shadow-xl flex flex-col items-center">
+            
+            <!-- Progress Counter -->
+            <div class="w-full flex justify-between items-center mb-2 text-slate-400 font-bold text-xs sm:text-sm">
+                <span id="category-title">Huruf Kapital</span>
+                <span id="progress-indicator">Soal 1 dari 26</span>
+            </div>
+
+            <!-- Compact Sample Display Card with Object Picture & Audio -->
+            <div class="relative w-full min-h-[140px] sm:min-h-[170px] bg-gradient-to-br from-indigo-50 via-blue-50 to-amber-50 rounded-2xl border-4 border-dashed border-indigo-200 flex items-center justify-between p-3 sm:p-4 shadow-inner group">
+                
+                <!-- Main Big Letter -->
+                <div class="flex flex-col items-center justify-center pl-1 sm:pl-2">
+                    <div id="sample-char" class="text-6xl sm:text-7xl lg:text-8xl font-extrabold text-indigo-600 tracking-wider transition-all duration-300 drop-shadow-sm">
+                        A
+                    </div>
+                </div>
+
+                <!-- Cute Object Emoji Display Container -->
+                <div class="flex flex-col items-center justify-center px-1 sm:px-2">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl border-2 border-white bg-white/90 shadow-md flex items-center justify-center overflow-hidden hover:scale-105 transition-all">
+                        <span id="sample-emoji" class="text-5xl sm:text-6xl lg:text-7xl select-none drop-shadow-sm">🍎</span>
+                    </div>
+                </div>
+
+                <!-- Word Hint & Audio Button Stack -->
+                <div class="flex flex-col items-end justify-center space-y-2 pr-1 sm:pr-2">
+                    <button id="btn-sample-speaker" onclick="speakTargetChar(null, true)" class="bg-indigo-500 hover:bg-indigo-600 text-white w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-md flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Dengarkan Suara">
+                        <i id="sample-speaker-icon" class="fa-solid fa-volume-high text-base sm:text-lg"></i>
+                    </button>
+                    <div id="sample-word-hint" class="text-slate-600 font-quicksand font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-white/90 px-2.5 py-1 sm:py-1.5 rounded-xl border border-indigo-100 shadow-sm">
+                        <span id="word-emoji" class="text-base sm:text-lg">🍎</span>
+                        <span id="word-example" class="text-indigo-700 font-bold capitalize">Apel</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Character Grid Selector -->
+            <div class="w-full mt-3">
+                <p class="text-[10px] sm:text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Pilih Karakter:</p>
+                <div id="char-grid" class="grid grid-cols-7 sm:grid-cols-9 lg:grid-cols-6 gap-1 max-h-24 sm:max-h-32 overflow-y-auto p-1.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <!-- Dynamic Grid Buttons Inserted via JS -->
+                </div>
+            </div>
+
+            <!-- Guide Hints -->
+            <div class="w-full mt-3 bg-amber-50 border-2 border-amber-200 rounded-2xl p-2.5 text-[11px] sm:text-xs text-amber-800 flex items-start space-x-2">
+                <i class="fa-solid fa-circle-info text-amber-500 text-sm sm:text-base mt-0.5"></i>
+                <div>
+                    <p class="font-bold">Petunjuk Belajar:</p>
+                    <p class="font-quicksand">Tiru pola garis putus-putus pada papan kerja di sebelah kanan dengan teliti ya!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side: Interactive Drawing Board & Controls -->
+        <section class="lg:col-span-8 xl:col-span-9 bg-white p-3 sm:p-4 rounded-3xl border-4 border-pink-200 shadow-xl flex flex-col items-center">
+            
+            <!-- Canvas Toolbar Controls -->
+            <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-3 bg-slate-50 p-2 sm:p-2.5 rounded-2xl border border-slate-200 text-xs sm:text-sm">
+                
+                <!-- Color Selector -->
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-xs font-bold text-slate-500 hidden sm:inline">Warna:</span>
+                    <div class="flex space-x-1.5">
+                        <button onclick="setBrushColor('#2563eb')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 border-2 border-white ring-2 ring-blue-600 hover:scale-110 transition-all"></button>
+                        <button onclick="setBrushColor('#dc2626')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-600 border-2 border-white hover:ring-2 hover:ring-red-600 hover:scale-110 transition-all"></button>
+                        <button onclick="setBrushColor('#16a34a')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-600 border-2 border-white hover:ring-2 hover:ring-green-600 hover:scale-110 transition-all"></button>
+                        <button onclick="setBrushColor('#9333ea')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-600 border-2 border-white hover:ring-2 hover:ring-purple-600 hover:scale-110 transition-all"></button>
+                        <button onclick="setBrushColor('#1e293b')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-800 border-2 border-white hover:ring-2 hover:ring-slate-800 hover:scale-110 transition-all"></button>
+                    </div>
+                </div>
+
+                <!-- Stroke Width Selector -->
+                <div class="flex items-center space-x-1 sm:space-x-1.5">
+                    <span class="text-xs font-bold text-slate-500 hidden sm:inline">Ukuran:</span>
+                    <button onclick="setBrushSize(8)" class="px-2 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-100">Tipis</button>
+                    <button onclick="setBrushSize(16)" class="px-2 py-1 bg-amber-400 text-white rounded-lg text-xs font-bold shadow-sm">Sedang</button>
+                    <button onclick="setBrushSize(24)" class="px-2 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-100">Tebal</button>
+                </div>
+
+                <!-- Template Trace Toggle & Arrow Guide Toggle -->
+                <div class="flex items-center space-x-1.5">
+                    <button id="btn-toggle-guide" onclick="toggleGuideTemplate()" class="px-2.5 py-1 sm:py-1.5 bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold hover:bg-indigo-200 transition-all flex items-center gap-1">
+                        <i class="fa-solid fa-eye"></i> Garis Panduan: ON
+                    </button>
+                    <button id="btn-toggle-arrows" onclick="toggleArrowGuide()" class="px-2.5 py-1 sm:py-1.5 bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold hover:bg-amber-200 transition-all flex items-center gap-1 shadow-sm">
+                        <i id="arrow-icon" class="fa-solid fa-arrow-trend-up text-amber-600"></i> <span id="arrow-label">Arah Panah: ON</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Drawing Canvas Container -->
+            <div class="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[50vh] sm:max-h-[480px] rounded-2xl border-4 border-slate-300 overflow-hidden shadow-inner ruled-line-bg cursor-crosshair">
+                
+                <!-- Background Trace Template Canvas -->
+                <canvas id="guideCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-90"></canvas>
+                
+                <!-- Active User Drawing Canvas -->
+                <canvas id="paintCanvas" class="absolute inset-0 w-full h-full touch-none"></canvas>
+            </div>
+
+            <!-- Action Control Buttons -->
+            <div class="w-full mt-3 sm:mt-4 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                
+                <!-- Reset / Clear Buttons -->
+                <div class="flex space-x-2">
+                    <button onclick="clearCanvas()" class="px-3.5 sm:px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center space-x-1 border border-rose-300">
+                        <i class="fa-solid fa-eraser"></i>
+                        <span>Hapus</span>
+                    </button>
+                    <button onclick="resetQuestion()" class="px-3.5 sm:px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center space-x-1 border border-slate-300">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Ulangi</span>
+                    </button>
+                </div>
+
+                <!-- Submit / Gemini Check & Next Buttons -->
+                <div class="flex space-x-2">
+                    <button onclick="analyzeWithGemini()" class="px-4 sm:px-5 py-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-lg transition-all flex items-center space-x-1.5 hover:scale-105 active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                        <span>Periksa Jawaban</span>
+                    </button>
+                    <button onclick="nextQuestion()" class="px-4 sm:px-5 py-2 bg-amber-400 hover:bg-amber-500 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center space-x-1">
+                        <span>Lanjut</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Feedback Gemini AI -->
+    <div id="ai-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-lg w-full rounded-3xl border-4 border-amber-300 shadow-2xl p-6 relative transform transition-all animate-bounce-slow">
+            
+            <button onclick="closeAiModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center">
+                <div id="ai-status-icon" class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 text-4xl shadow-inner">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+
+                <h3 id="ai-modal-title" class="text-2xl font-bold text-slate-800">Menganalisis Tulisan...</h3>
+                
+                <!-- Bintang Penilaian -->
+                <div id="star-rating" class="flex justify-center space-x-2 my-3 text-3xl text-amber-400">
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                </div>
+
+                <div class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-4 my-4 text-left">
+                    <p class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-comment-dots mr-1"></i> Catatan Guru Gemini AI:
+                    </p>
+                    <p id="ai-feedback-text" class="text-sm font-quicksand font-bold text-slate-700 leading-relaxed">
+                        Sedang memeriksa kerapian dan ketepatan tulisanmu... Mohon tunggu sebentar ya!
+                    </p>
+                </div>
+
+                <div class="flex space-x-3 justify-center">
+                    <button id="btn-modal-retry" onclick="closeAiModal()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm">
+                        Coba Lagi
+                    </button>
+                    <button id="btn-modal-next" onclick="closeAiModal(); nextQuestion();" class="px-6 py-2.5 bg-amber-400 hover:bg-amber-500 text-white rounded-xl font-bold text-sm shadow-md">
+                        Lanjut Soal Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Rekap Pengerjaan & Download DOC -->
+    <div id="summary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-3xl w-full rounded-3xl border-4 border-indigo-200 shadow-2xl p-6 relative max-h-[90vh] flex flex-col">
+            
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-indigo-500 text-white rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Rekap Hasil Belajar</h3>
+                        <p class="text-xs font-quicksand font-bold text-slate-400">Ringkasan aktivitas dan evaluasi Gemini AI</p>
+                    </div>
+                </div>
+                <button onclick="closeSummaryModal()" class="text-slate-400 hover:text-slate-600 text-xl w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Content Area inside Modal -->
+            <div class="overflow-y-auto flex-grow pr-2 space-y-4">
+                
+                <!-- Overall Performance Card -->
+                <div class="bg-gradient-to-r from-amber-100 via-pink-100 to-indigo-100 p-4 rounded-2xl border border-amber-200 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 uppercase">Total Soal Dikerjakan</p>
+                        <p id="summary-total-completed" class="text-2xl font-bold text-slate-800">0 Soal</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 uppercase">Total Bintang</p>
+                        <p id="summary-total-stars" class="text-2xl font-bold text-amber-500">0 ★</p>
+                    </div>
+                    <div>
+                        <button onclick="generateOverallAiRecap()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow transition-all">
+                            <i class="fa-solid fa-brain mr-1"></i> Buat Analisis Keseluruhan AI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Global Gemini AI Assessment -->
+                <div id="overall-ai-box" class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 hidden">
+                    <h4 class="font-bold text-amber-800 text-sm mb-1 flex items-center">
+                        <i class="fa-solid fa-award text-amber-500 mr-2"></i> Evaluasi Umum Gemini AI:
+                    </h4>
+                    <p id="overall-ai-text" class="text-xs font-quicksand font-bold text-slate-700 leading-relaxed">
+                        Klik tombol di atas untuk menganalisis perkembangan belajar anak secara menyeluruh.
+                    </p>
+                </div>
+
+                <!-- List of Completed Exercises -->
+                <div>
+                    <h4 class="font-bold text-slate-700 text-sm mb-2">Daftar Karakter yang Telah Dikerjakan:</h4>
+                    <div id="summary-list" class="space-y-2">
+                        <div class="text-center py-8 text-slate-400 font-quicksand font-bold text-sm">
+                            Belum ada soal yang dikerjakan. Ayo mulai menulis!
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer / Download Button -->
+            <div class="border-t pt-4 mt-4 flex justify-between items-center">
+                <button onclick="resetAllProgress()" class="text-rose-500 hover:text-rose-700 text-xs font-bold">
+                    <i class="fa-solid fa-trash mr-1"></i> Reset Semua Progress
+                </button>
+                <button onclick="downloadDocReport()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-md flex items-center space-x-2">
+                    <i class="fa-solid fa-file-word text-lg"></i>
+                    <span>Download Laporan (.doc)</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs font-quicksand font-bold text-slate-400">
+        Belajar Menulis Ceria &copy; 2026 - Media Pembelajaran Interaktif PAUD & TK
+    </footer>
+
+    <script>
+        // ==========================================
+        // DATASET KATEGORI DAN SOAL (LENGKAP DENGAN GAMBAR NYATA & AKURAT)
+        // ==========================================
+        const DATASETS = {
+            uppercase: [
+                { char: 'A', example: 'Apel', emoji: '🍎', image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&auto=format&fit=crop&q=80' },
+                { char: 'B', example: 'Buku', emoji: '📖', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80' },
+                { char: 'C', example: 'Cicak', emoji: '🦎', image: 'https://images.unsplash.com/photo-1548802673-380ab8ebc7b7?w=300&auto=format&fit=crop&q=80' },
+                { char: 'D', example: 'Domba', emoji: '🐑', image: 'https://images.unsplash.com/photo-1484557052118-f32bd25b45b5?w=300&auto=format&fit=crop&q=80' },
+                { char: 'E', example: 'Elang', emoji: '🦅', image: 'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?w=300&auto=format&fit=crop&q=80' },
+                { char: 'F', example: 'Foto', emoji: '📷', image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300&auto=format&fit=crop&q=80' },
+                { char: 'G', example: 'Gajah', emoji: '🐘', image: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=300&auto=format&fit=crop&q=80' },
+                { char: 'H', example: 'Harimau', emoji: '🐯', image: 'https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?w=300&auto=format&fit=crop&q=80' },
+                { char: 'I', example: 'Ikan', emoji: '🐟', image: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=300&auto=format&fit=crop&q=80' },
+                { char: 'J', example: 'Jeruk', emoji: '🍊', image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=300&auto=format&fit=crop&q=80' },
+                { char: 'K', example: 'Kucing', emoji: '🐱', image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300&auto=format&fit=crop&q=80' },
+                { char: 'L', example: 'Lemon', emoji: '🍋', image: 'https://images.unsplash.com/photo-1534531141161-e41d133a8979?w=300&auto=format&fit=crop&q=80' },
+                { char: 'M', example: 'Mata', emoji: '👁️', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80' },
+                { char: 'N', example: 'Nasi', emoji: '🍚', image: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=300&auto=format&fit=crop&q=80' },
+                { char: 'O', example: 'Obat', emoji: '💊', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80' },
+                { char: 'P', example: 'Pisang', emoji: '🍌', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop&q=80' },
+                { char: 'Q', example: 'Quran', emoji: '📖', image: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=300&auto=format&fit=crop&q=80' },
+                { char: 'R', example: 'Rusa', emoji: '🦌', image: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?w=300&auto=format&fit=crop&q=80' },
+                { char: 'S', example: 'Sapi', emoji: '🐮', image: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?w=300&auto=format&fit=crop&q=80' },
+                { char: 'T', example: 'Topi', emoji: '🧢', image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&auto=format&fit=crop&q=80' },
+                { char: 'U', example: 'Udang', emoji: '🦐', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&auto=format&fit=crop&q=80' },
+                { char: 'V', example: 'Vas', emoji: '🏺', image: 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?w=300&auto=format&fit=crop&q=80' },
+                { char: 'W', example: 'Wortel', emoji: '🥕', image: 'https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=300&auto=format&fit=crop&q=80' },
+                { char: 'X', example: 'Xylophone', emoji: '🎼', image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80' },
+                { char: 'Y', example: 'Yoyo', emoji: '🪀', image: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
+                { char: 'Z', example: 'Zebra', emoji: '🦓', image: 'https://images.unsplash.com/photo-1501705388883-4ed8a543392c?w=300&auto=format&fit=crop&q=80' }
+            ],
+            lowercase: [
+                { char: 'a', example: 'ayam', emoji: '🐓', image: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=300&auto=format&fit=crop&q=80' },
+                { char: 'b', example: 'baju', emoji: '👕', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80' },
+                { char: 'c', example: 'cacing', emoji: '🐛', image: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=300&auto=format&fit=crop&q=80' },
+                { char: 'd', example: 'dadu', emoji: '🎲', image: 'https://images.unsplash.com/photo-1522069213448-443a59d09613?w=300&auto=format&fit=crop&q=80' },
+                { char: 'e', example: 'emas', emoji: '🥇', image: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=300&auto=format&fit=crop&q=80' },
+                { char: 'f', example: 'ferry', emoji: '⛴️', image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=300&auto=format&fit=crop&q=80' },
+                { char: 'g', example: 'gula', emoji: '🍬', image: 'https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=300&auto=format&fit=crop&q=80' },
+                { char: 'h', example: 'hujan', emoji: '🌧️', image: 'https://images.unsplash.com/photo-1519692933481-e162a57d6721?w=300&auto=format&fit=crop&q=80' },
+                { char: 'i', example: 'itik', emoji: '🦆', image: 'https://images.unsplash.com/photo-1555852095-64e7428df0fa?w=300&auto=format&fit=crop&q=80' },
+                { char: 'j', example: 'jam', emoji: '⏰', image: 'https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=300&auto=format&fit=crop&q=80' },
+                { char: 'k', example: 'kuda', emoji: '🐴', image: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=300&auto=format&fit=crop&q=80' },
+                { char: 'l', example: 'lilin', emoji: '🕯️', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=300&auto=format&fit=crop&q=80' },
+                { char: 'm', example: 'meja', emoji: '🪑', image: 'https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?w=300&auto=format&fit=crop&q=80' },
+                { char: 'n', example: 'nanas', emoji: '🍍', image: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=300&auto=format&fit=crop&q=80' },
+                { char: 'o', example: 'onta', emoji: '🐪', image: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=300&auto=format&fit=crop&q=80' },
+                { char: 'p', example: 'payung', emoji: '☂️', image: 'https://images.unsplash.com/photo-1517479149777-5f3b6511d5ad?w=300&auto=format&fit=crop&q=80' },
+                { char: 'q', example: 'quran', emoji: '📖', image: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=300&auto=format&fit=crop&q=80' },
+                { char: 'r', example: 'roti', emoji: '🍞', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80' },
+                { char: 's', example: 'sendok', emoji: '🥄', image: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=300&auto=format&fit=crop&q=80' },
+                { char: 't', example: 'topi', emoji: '🧢', image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&auto=format&fit=crop&q=80' },
+                { char: 'u', example: 'ular', emoji: '🐍', image: 'https://images.unsplash.com/photo-1531386151447-fd76ad50012f?w=300&auto=format&fit=crop&q=80' },
+                { char: 'v', example: 'voli', emoji: '🏐', image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=300&auto=format&fit=crop&q=80' },
+                { char: 'w', example: 'wortel', emoji: '🥕', image: 'https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=300&auto=format&fit=crop&q=80' },
+                { char: 'x', example: 'x-ray', emoji: '🩻', image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=300&auto=format&fit=crop&q=80' },
+                { char: 'y', example: 'yoyo', emoji: '🪀', image: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
+                { char: 'z', example: 'zebra', emoji: '🦓', image: 'https://images.unsplash.com/photo-1501705388883-4ed8a543392c?w=300&auto=format&fit=crop&q=80' }
+            ],
+            numbers: [
+                { char: '0', example: 'Nol (Telur)', emoji: '🥚', image: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=300&auto=format&fit=crop&q=80' },
+                { char: '1', example: 'Satu (Pensil)', emoji: '✏️', image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=300&auto=format&fit=crop&q=80' },
+                { char: '2', example: 'Dua (Bebek)', emoji: '🦆', image: 'https://images.unsplash.com/photo-1555852095-64e7428df0fa?w=300&auto=format&fit=crop&q=80' },
+                { char: '3', example: 'Tiga (Balon)', emoji: '🎈', image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&auto=format&fit=crop&q=80' },
+                { char: '4', example: 'Empat (Mobil)', emoji: '🚗', image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=300&auto=format&fit=crop&q=80' },
+                { char: '5', example: 'Lima (Bintang)', emoji: '⭐', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80' },
+                { char: '6', example: 'Enam (Ikan)', emoji: '🐟', image: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=300&auto=format&fit=crop&q=80' },
+                { char: '7', example: 'Tujuh (Bunga)', emoji: '🌸', image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=300&auto=format&fit=crop&q=80' },
+                { char: '8', example: 'Delapan (Kacamata)', emoji: '👓', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&auto=format&fit=crop&q=80' },
+                { char: '9', example: 'Sembilan (Permen)', emoji: '🍬', image: 'https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=300&auto=format&fit=crop&q=80' }
+            ]
+        };
+
+        // ==========================================
+        // STROKE ORDER & ARROW GUIDES FOR CHARACTERS
+        // ==========================================
+        const STROKE_GUIDES = {
+            // UPPERCASE LETTERS
+            'A': [
+                { x: -0.02, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: 0.02, y: -0.32, ex: 0.22, ey: 0.32, step: 2 },
+                { x: -0.15, y: 0.08, ex: 0.15, ey: 0.08, step: 3 }
+            ],
+            'B': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: -0.22, y: -0.32, cx: 0.20, cy: -0.16, ex: -0.22, ey: 0.0, step: 2 },
+                { x: -0.22, y: 0.0, cx: 0.24, cy: 0.16, ex: -0.22, ey: 0.32, step: 3 }
+            ],
+            'C': [
+                { x: 0.20, y: -0.22, path: [ { cx: -0.30, cy: -0.32, ex: -0.28, ey: 0.0 }, { cx: -0.28, cy: 0.32, ex: 0.20, ey: 0.22 } ], step: 1 }
+            ],
+            'D': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: -0.22, y: -0.32, path: [ { cx: 0.28, cy: -0.32, ex: 0.25, ey: 0.0 }, { cx: 0.28, cy: 0.32, ex: -0.22, ey: 0.32 } ], step: 2 }
+            ],
+            'E': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: -0.22, y: -0.32, ex: 0.20, ey: -0.32, step: 2 },
+                { x: -0.22, y: 0.0, ex: 0.14, ey: 0.0, step: 3 },
+                { x: -0.22, y: 0.32, ex: 0.20, ey: 0.32, step: 4 }
+            ],
+            'F': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: -0.22, y: -0.32, ex: 0.20, ey: -0.32, step: 2 },
+                { x: -0.22, y: 0.0, ex: 0.14, ey: 0.0, step: 3 }
+            ],
+            'G': [
+                { x: 0.20, y: -0.22, path: [ { cx: -0.30, cy: -0.32, ex: -0.28, ey: 0.0 }, { cx: -0.28, cy: 0.32, ex: 0.20, ey: 0.18 } ], step: 1 },
+                { x: 0.20, y: 0.18, ex: 0.04, ey: 0.18, step: 2 }
+            ],
+            'H': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: 0.22, y: -0.32, ex: 0.22, ey: 0.32, step: 2 },
+                { x: -0.22, y: 0.0, ex: 0.22, ey: 0.0, step: 3 }
+            ],
+            'I': [
+                { x: 0.0, y: -0.22, ex: 0.0, ey: 0.22, step: 1 },
+                { x: -0.15, y: -0.30, ex: 0.15, ey: -0.30, step: 2 },
+                { x: -0.15, y: 0.30, ex: 0.15, ey: 0.30, step: 3 }
+            ],
+            'J': [
+                { x: -0.15, y: -0.32, ex: 0.15, ey: -0.32, step: 1 },
+                { x: 0.12, y: -0.32, cx: 0.12, cy: 0.32, ex: -0.15, ey: 0.20, step: 2 }
+            ],
+            'K': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: 0.20, y: -0.30, ex: -0.20, ey: 0.0, step: 2 },
+                { x: -0.05, y: -0.02, ex: 0.22, ey: 0.32, step: 3 }
+            ],
+            'L': [
+                { x: -0.20, y: -0.32, ex: -0.20, ey: 0.32, step: 1 },
+                { x: -0.20, y: 0.32, ex: 0.20, ey: 0.32, step: 2 }
+            ],
+            'M': [
+                { x: -0.26, y: 0.32, ex: -0.26, ey: -0.32, step: 1 },
+                { x: -0.26, y: -0.32, ex: 0, ey: 0.15, step: 2 },
+                { x: 0, y: 0.15, ex: 0.26, ey: -0.32, step: 3 },
+                { x: 0.26, y: -0.32, ex: 0.26, ey: 0.32, step: 4 }
+            ],
+            'N': [
+                { x: -0.22, y: 0.32, ex: -0.22, ey: -0.32, step: 1 },
+                { x: -0.22, y: -0.32, ex: 0.22, ey: 0.32, step: 2 },
+                { x: 0.22, y: 0.32, ex: 0.22, ey: -0.32, step: 3 }
+            ],
+            'O': [
+                { x: 0, y: -0.32, path: [ { cx: -0.35, cy: -0.32, ex: -0.28, ey: 0 }, { cx: -0.35, cy: 0.32, ex: 0, ey: 0.32 }, { cx: 0.35, cy: 0.32, ex: 0.28, ey: 0 }, { cx: 0.35, cy: -0.32, ex: 0, ey: -0.30 } ], step: 1 }
+            ],
+            'P': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: -0.22, y: -0.32, cx: 0.22, cy: -0.16, ex: -0.22, ey: 0.0, step: 2 }
+            ],
+            'Q': [
+                { x: 0, y: -0.32, path: [ { cx: -0.35, cy: -0.32, ex: -0.28, ey: 0 }, { cx: -0.35, cy: 0.32, ex: 0, ey: 0.32 }, { cx: 0.35, cy: 0.32, ex: 0.28, ey: 0 }, { cx: 0.35, cy: -0.32, ex: 0, ey: -0.30 } ], step: 1 },
+                { x: 0.05, y: 0.08, ex: 0.25, ey: 0.30, step: 2 }
+            ],
+            'R': [
+                { x: -0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 1 },
+                { x: -0.22, y: -0.32, cx: 0.22, cy: -0.16, ex: -0.22, ey: 0.0, step: 2 },
+                { x: -0.05, y: 0.0, ex: 0.22, ey: 0.32, step: 3 }
+            ],
+            'S': [
+                { x: 0.18, y: -0.22, path: [ { cx: -0.28, cy: -0.32, ex: 0, ey: -0.05 }, { cx: 0.28, cy: 0.20, ex: -0.18, ey: 0.22 } ], step: 1 }
+            ],
+            'T': [
+                { x: -0.25, y: -0.32, ex: 0.25, ey: -0.32, step: 1 },
+                { x: 0, y: -0.32, ex: 0, ey: 0.32, step: 2 }
+            ],
+            'U': [
+                { x: -0.22, y: -0.32, path: [ { cx: -0.22, cy: 0.32, ex: 0, ey: 0.32 }, { cx: 0.22, cy: 0.32, ex: 0.22, ey: -0.32 } ], step: 1 }
+            ],
+            'V': [
+                { x: -0.24, y: -0.32, ex: 0, ey: 0.32, step: 1 },
+                { x: 0, y: 0.32, ex: 0.24, ey: -0.32, step: 2 }
+            ],
+            'W': [
+                { x: -0.28, y: -0.32, ex: -0.14, ey: 0.32, step: 1 },
+                { x: -0.14, y: 0.32, ex: 0, ey: -0.10, step: 2 },
+                { x: 0, y: -0.10, ex: 0.14, ey: 0.32, step: 3 },
+                { x: 0.14, y: 0.32, ex: 0.28, ey: -0.32, step: 4 }
+            ],
+            'X': [
+                { x: -0.22, y: -0.32, ex: 0.22, ey: 0.32, step: 1 },
+                { x: 0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 2 }
+            ],
+            'Y': [
+                { x: -0.24, y: -0.32, ex: 0, ey: 0.05, step: 1 },
+                { x: 0.24, y: -0.32, ex: 0, ey: 0.05, step: 2 },
+                { x: 0, y: 0.05, ex: 0, ey: 0.32, step: 3 }
+            ],
+            'Z': [
+                { x: -0.22, y: -0.32, ex: 0.22, ey: -0.32, step: 1 },
+                { x: 0.22, y: -0.32, ex: -0.22, ey: 0.32, step: 2 },
+                { x: -0.22, y: 0.32, ex: 0.22, ey: 0.32, step: 3 }
+            ],
+
+            // LOWERCASE LETTERS
+            'a': [
+                { x: 0.15, y: 0.02, path: [ { cx: -0.22, cy: -0.08, ex: -0.20, ey: 0.15 }, { cx: -0.18, cy: 0.32, ex: 0.15, ey: 0.28 } ], step: 1 },
+                { x: 0.15, y: -0.02, ex: 0.15, ey: 0.32, step: 2 }
+            ],
+            'b': [
+                { x: -0.18, y: -0.32, ex: -0.18, ey: 0.32, step: 1 },
+                { x: -0.18, y: 0.05, path: [ { cx: 0.20, cy: -0.05, ex: 0.18, ey: 0.18 }, { cx: 0.18, cy: 0.32, ex: -0.18, ey: 0.32 } ], step: 2 }
+            ],
+            'c': [
+                { x: 0.15, y: 0.02, path: [ { cx: -0.22, cy: -0.08, ex: -0.20, ey: 0.15 }, { cx: -0.18, cy: 0.32, ex: 0.15, ey: 0.28 } ], step: 1 }
+            ],
+            'd': [
+                { x: 0.15, y: 0.02, path: [ { cx: -0.22, cy: -0.08, ex: -0.20, ey: 0.15 }, { cx: -0.18, cy: 0.32, ex: 0.15, ey: 0.28 } ], step: 1 },
+                { x: 0.15, y: -0.32, ex: 0.15, ey: 0.32, step: 2 }
+            ],
+            'e': [
+                { x: -0.18, y: 0.12, ex: 0.15, ey: 0.12, step: 1 },
+                { x: 0.15, y: 0.12, path: [ { cx: 0.12, cy: -0.08, ex: -0.12, ey: -0.04 }, { cx: -0.22, cy: 0.28, ex: 0.15, ey: 0.28 } ], step: 2 }
+            ],
+            'f': [
+                { x: 0.12, y: -0.28, cx: -0.05, cy: -0.35, ex: -0.05, ey: 0.32, step: 1 },
+                { x: -0.18, y: -0.08, ex: 0.08, ey: -0.08, step: 2 }
+            ],
+            'g': [
+                { x: 0.15, y: 0.02, path: [ { cx: -0.22, cy: -0.08, ex: -0.20, ey: 0.15 }, { cx: -0.18, cy: 0.30, ex: 0.15, ey: 0.25 } ], step: 1 },
+                { x: 0.15, y: -0.02, cx: 0.15, cy: 0.48, ex: -0.12, ey: 0.42, step: 2 }
+            ],
+            'h': [
+                { x: -0.18, y: -0.32, ex: -0.18, ey: 0.32, step: 1 },
+                { x: -0.18, y: 0.05, cx: 0.12, cy: -0.08, ex: 0.15, ey: 0.32, step: 2 }
+            ],
+            'i': [
+                { x: 0.0, y: -0.02, ex: 0.0, ey: 0.32, step: 1 },
+                { x: 0.0, y: -0.22, ex: 0.0, ey: -0.18, step: 2 }
+            ],
+            'j': [
+                { x: 0.08, y: -0.02, cx: 0.08, cy: 0.48, ex: -0.15, ey: 0.42, step: 1 },
+                { x: 0.08, y: -0.22, ex: 0.08, ey: -0.18, step: 2 }
+            ],
+            'k': [
+                { x: -0.18, y: -0.32, ex: -0.18, ey: 0.32, step: 1 },
+                { x: 0.15, y: 0.02, ex: -0.18, ey: 0.15, step: 2 },
+                { x: -0.02, y: 0.10, ex: 0.18, ey: 0.32, step: 3 }
+            ],
+            'l': [
+                { x: 0.0, y: -0.32, ex: 0.0, ey: 0.32, step: 1 }
+            ],
+            'm': [
+                { x: -0.28, y: -0.02, ex: -0.28, ey: 0.32, step: 1 },
+                { x: -0.28, y: 0.05, cx: -0.05, cy: -0.08, ex: -0.02, ey: 0.32, step: 2 },
+                { x: -0.02, y: 0.05, cx: 0.22, cy: -0.08, ex: 0.24, ey: 0.32, step: 3 }
+            ],
+            'n': [
+                { x: -0.20, y: -0.02, ex: -0.20, ey: 0.32, step: 1 },
+                { x: -0.20, y: 0.05, cx: 0.15, cy: -0.08, ex: 0.18, ey: 0.32, step: 2 }
+            ],
+            'o': [
+                { x: 0, y: -0.02, path: [ { cx: -0.28, cy: -0.02, ex: -0.22, ey: 0.16 }, { cx: -0.28, cy: 0.32, ex: 0, ey: 0.32 }, { cx: 0.28, cy: 0.32, ex: 0.22, ey: 0.16 }, { cx: 0.28, cy: -0.02, ex: 0, ey: -0.01 } ], step: 1 }
+            ],
+            'p': [
+                { x: -0.18, y: -0.02, ex: -0.18, ey: 0.48, step: 1 },
+                { x: -0.18, y: 0.05, path: [ { cx: 0.18, cy: -0.05, ex: 0.16, ey: 0.16 }, { cx: 0.16, cy: 0.30, ex: -0.18, ey: 0.30 } ], step: 2 }
+            ],
+            'q': [
+                { x: 0.15, y: 0.02, path: [ { cx: -0.22, cy: -0.08, ex: -0.20, ey: 0.15 }, { cx: -0.18, cy: 0.30, ex: 0.15, ey: 0.28 } ], step: 1 },
+                { x: 0.15, y: -0.02, ex: 0.15, ey: 0.48, step: 2 }
+            ],
+            'r': [
+                { x: -0.15, y: -0.02, ex: -0.15, ey: 0.32, step: 1 },
+                { x: -0.15, y: 0.08, cx: 0.05, cy: -0.06, ex: 0.15, ey: 0.02, step: 2 }
+            ],
+            's': [
+                { x: 0.14, y: 0.02, path: [ { cx: -0.22, cy: -0.08, ex: 0, ey: 0.14 }, { cx: 0.22, cy: 0.30, ex: -0.15, ey: 0.28 } ], step: 1 }
+            ],
+            't': [
+                { x: 0.0, y: -0.28, cx: 0.0, cy: 0.32, ex: 0.12, ey: 0.30, step: 1 },
+                { x: -0.15, y: -0.08, ex: 0.15, ey: -0.08, step: 2 }
+            ],
+            'u': [
+                { x: -0.18, y: -0.02, path: [ { cx: -0.18, cy: 0.32, ex: 0, ey: 0.32 }, { cx: 0.15, cy: 0.32, ex: 0.15, ey: -0.02 } ], step: 1 },
+                { x: 0.15, y: 0.02, ex: 0.15, ey: 0.32, step: 2 }
+            ],
+            'v': [
+                { x: -0.20, y: -0.02, ex: 0.0, ey: 0.32, step: 1 },
+                { x: 0.0, y: 0.32, ex: 0.20, ey: -0.02, step: 2 }
+            ],
+            'w': [
+                { x: -0.24, y: -0.02, ex: -0.12, ey: 0.32, step: 1 },
+                { x: -0.12, y: 0.32, ex: 0.0, ey: 0.12, step: 2 },
+                { x: 0.0, y: 0.12, ex: 0.12, ey: 0.32, step: 3 },
+                { x: 0.12, y: 0.32, ex: 0.24, ey: -0.02, step: 4 }
+            ],
+            'x': [
+                { x: -0.18, y: -0.02, ex: 0.18, ey: 0.32, step: 1 },
+                { x: 0.18, y: -0.02, ex: -0.18, ey: 0.32, step: 2 }
+            ],
+            'y': [
+                { x: -0.18, y: -0.02, ex: 0.0, ey: 0.18, step: 1 },
+                { x: 0.18, y: -0.02, ex: -0.15, ey: 0.46, step: 2 }
+            ],
+            'z': [
+                { x: -0.18, y: -0.02, ex: 0.18, ey: -0.02, step: 1 },
+                { x: 0.18, y: -0.02, ex: -0.18, ey: 0.32, step: 2 },
+                { x: -0.18, y: 0.32, ex: 0.18, ey: 0.32, step: 3 }
+            ],
+
+            // NUMBERS
+            '0': [
+                { x: 0, y: -0.32, path: [ { cx: -0.32, cy: -0.32, ex: -0.26, ey: 0 }, { cx: -0.32, cy: 0.32, ex: 0, ey: 0.32 }, { cx: 0.32, cy: 0.32, ex: 0.26, ey: 0 }, { cx: 0.32, cy: -0.32, ex: 0, ey: -0.30 } ], step: 1 }
+            ],
+            '1': [
+                { x: -0.15, y: -0.15, ex: 0, ey: -0.32, step: 1 },
+                { x: 0, y: -0.32, ex: 0, ey: 0.32, step: 2 }
+            ],
+            '2': [
+                { x: -0.18, y: -0.18, path: [ { cx: 0.0, cy: -0.35, ex: 0.20, ey: -0.15 }, { cx: 0.15, cy: 0.10, ex: -0.20, ey: 0.32 } ], step: 1 },
+                { x: -0.20, y: 0.32, ex: 0.22, ey: 0.32, step: 2 }
+            ],
+            '3': [
+                { x: -0.18, y: -0.22, cx: 0.22, cy: -0.32, ex: 0.0, ey: -0.04, step: 1 },
+                { x: 0.0, y: -0.04, cx: 0.25, cy: 0.28, ex: -0.18, ey: 0.22, step: 2 }
+            ],
+            '4': [
+                { x: 0.12, y: -0.32, ex: -0.22, ey: 0.05, step: 1 },
+                { x: -0.22, y: 0.05, ex: 0.22, ey: 0.05, step: 2 },
+                { x: 0.12, y: -0.10, ex: 0.12, ey: 0.32, step: 3 }
+            ],
+            '5': [
+                { x: 0.15, y: -0.32, ex: -0.15, ey: -0.32, step: 1 },
+                { x: -0.15, y: -0.32, ex: -0.15, ey: -0.05, step: 2 },
+                { x: -0.15, y: -0.05, cx: 0.25, cy: 0.12, ex: -0.15, ey: 0.28, step: 3 }
+            ],
+            '6': [
+                { x: 0.15, y: -0.25, cx: -0.25, cy: -0.25, ex: -0.22, ey: 0.10, step: 1 },
+                { x: -0.22, y: 0.10, path: [ { cx: -0.22, cy: 0.34, ex: 0.10, ey: 0.28 }, { cx: 0.22, cy: 0.0, ex: -0.18, ey: 0.02 } ], step: 2 }
+            ],
+            '7': [
+                { x: -0.22, y: -0.32, ex: 0.22, ey: -0.32, step: 1 },
+                { x: 0.22, y: -0.32, ex: -0.12, ey: 0.32, step: 2 }
+            ],
+            '8': [
+                { x: 0, y: -0.16, path: [ { cx: -0.25, cy: -0.32, ex: -0.20, ey: -0.16 }, { cx: 0.20, cy: 0.16, ex: 0, ey: 0.32 }, { cx: -0.20, cy: 0.32, ex: -0.20, ey: 0.16 }, { cx: 0.20, cy: -0.16, ex: 0, ey: -0.30 } ], step: 1 }
+            ],
+            '9': [
+                { x: 0.18, y: -0.15, path: [ { cx: -0.25, cy: -0.32, ex: -0.20, ey: -0.15 }, { cx: -0.20, cy: 0.05, ex: 0.18, ey: 0.02 } ], step: 1 },
+                { x: 0.18, y: -0.15, cx: 0.18, cy: 0.32, ex: -0.12, ey: 0.30, step: 2 }
+            ]
+        };
+
+        let currentCategory = 'uppercase';
+        let currentIndex = 0;
+        let currentBrushColor = '#2563eb';
+        let currentBrushSize = 16;
+        let isDrawing = false;
+        let showGuide = true;
+        let showArrows = localStorage.getItem('tulisceria_arrows') !== 'off';
+        let totalStars = 0;
+
+        // History pengerjaan siswa
+        let completedHistory = []; 
+
+        // Canvas References
+        const paintCanvas = document.getElementById('paintCanvas');
+        const paintCtx = paintCanvas.getContext('2d');
+        const guideCanvas = document.getElementById('guideCanvas');
+        const guideCtx = guideCanvas.getContext('2d');
+
+        function setupCanvasSize() {
+            const rect = paintCanvas.parentElement.getBoundingClientRect();
+            
+            paintCanvas.width = rect.width;
+            paintCanvas.height = rect.height;
+            guideCanvas.width = rect.width;
+            guideCanvas.height = rect.height;
+
+            drawGuideTemplate();
+        }
+
+        window.addEventListener('resize', setupCanvasSize);
+
+        // Event Listener Menggambar (Mouse & Touch)
+        function initDrawingEvents() {
+            // Mouse
+            paintCanvas.addEventListener('mousedown', startDrawing);
+            paintCanvas.addEventListener('mousemove', draw);
+            paintCanvas.addEventListener('mouseup', stopDrawing);
+            paintCanvas.addEventListener('mouseleave', stopDrawing);
+
+            // Touch
+            paintCanvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                paintCanvas.dispatchEvent(mouseEvent);
+            });
+
+            paintCanvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                paintCanvas.dispatchEvent(mouseEvent);
+            });
+
+            paintCanvas.addEventListener('touchend', (e) => {
+                const mouseEvent = new MouseEvent('mouseup', {});
+                paintCanvas.dispatchEvent(mouseEvent);
+            });
+        }
+
+        function getCanvasCoordinates(e) {
+            const rect = paintCanvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const pos = getCanvasCoordinates(e);
+            paintCtx.beginPath();
+            paintCtx.moveTo(pos.x, pos.y);
+            paintCtx.strokeStyle = currentBrushColor;
+            paintCtx.lineWidth = currentBrushSize;
+            paintCtx.lineCap = 'round';
+            paintCtx.lineJoin = 'round';
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getCanvasCoordinates(e);
+            paintCtx.lineTo(pos.x, pos.y);
+            paintCtx.stroke();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                paintCtx.closePath();
+                isDrawing = false;
+            }
+        }
+
+        function drawGuideTemplate() {
+            guideCtx.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
+            if (!showGuide) return;
+
+            const item = DATASETS[currentCategory][currentIndex];
+            const char = item.char;
+
+            guideCtx.save();
+            guideCtx.font = `bold ${guideCanvas.height * 0.75}px Fredoka`;
+            guideCtx.fillStyle = '#64748b';
+            guideCtx.textAlign = 'center';
+            guideCtx.textBaseline = 'middle';
+
+            // Menggambar text karakter dengan garis putus-putus
+            guideCtx.setLineDash([10, 10]);
+            guideCtx.lineWidth = 4;
+            guideCtx.strokeStyle = '#94a3b8';
+            guideCtx.strokeText(char, guideCanvas.width / 2, guideCanvas.height / 2 + 10);
+
+            guideCtx.restore();
+
+            if (showArrows) {
+                drawStrokeArrows(char);
+            }
+        }
+
+        function drawStrokeArrows(char) {
+            const guideList = STROKE_GUIDES[char] || STROKE_GUIDES[char.toUpperCase()];
+            if (!guideList || guideList.length === 0) return;
+
+            const cx = guideCanvas.width / 2;
+            const cy = guideCanvas.height / 2 + 10;
+            const charSize = guideCanvas.height * 0.75;
+
+            guideCtx.save();
+
+            const badges = [];
+
+            // Pass 1: Draw lines / curves and arrowheads
+            guideList.forEach(stroke => {
+                const sx = cx + stroke.x * charSize;
+                const sy = cy + stroke.y * charSize;
+
+                badges.push({ sx, sy, step: stroke.step });
+
+                guideCtx.beginPath();
+                guideCtx.moveTo(sx, sy);
+
+                let endX = sx;
+                let endY = sy;
+                let arrowAngle = 0;
+
+                if (stroke.path && Array.isArray(stroke.path) && stroke.path.length > 0) {
+                    let prevControlX = sx;
+                    let prevControlY = sy;
+                    stroke.path.forEach(seg => {
+                        const segCx = cx + seg.cx * charSize;
+                        const segCy = cy + seg.cy * charSize;
+                        const segEx = cx + seg.ex * charSize;
+                        const segEy = cy + seg.ey * charSize;
+                        guideCtx.quadraticCurveTo(segCx, segCy, segEx, segEy);
+                        prevControlX = segCx;
+                        prevControlY = segCy;
+                        endX = segEx;
+                        endY = segEy;
+                    });
+                    arrowAngle = Math.atan2(endY - prevControlY, endX - prevControlX);
+                } else if (stroke.cx !== undefined && stroke.cy !== undefined) {
+                    const controlX = cx + stroke.cx * charSize;
+                    const controlY = cy + stroke.cy * charSize;
+                    endX = cx + (stroke.ex !== undefined ? stroke.ex : (stroke.x + (stroke.dx || 0))) * charSize;
+                    endY = cy + (stroke.ey !== undefined ? stroke.ey : (stroke.y + (stroke.dy || 0))) * charSize;
+
+                    guideCtx.quadraticCurveTo(controlX, controlY, endX, endY);
+                    arrowAngle = Math.atan2(endY - controlY, endX - controlX);
+                } else {
+                    endX = cx + (stroke.ex !== undefined ? stroke.ex : (stroke.x + (stroke.dx || 0))) * charSize;
+                    endY = cy + (stroke.ey !== undefined ? stroke.ey : (stroke.y + (stroke.dy || 0))) * charSize;
+
+                    guideCtx.lineTo(endX, endY);
+                    arrowAngle = Math.atan2(endY - sy, endX - sx);
+                }
+
+                // Line path (Amber / Orange vibrant)
+                guideCtx.strokeStyle = '#f59e0b';
+                guideCtx.lineWidth = 4;
+                guideCtx.setLineDash([6, 4]);
+                guideCtx.stroke();
+
+                // Arrowhead at end position (endX, endY)
+                const headLen = 14;
+                guideCtx.setLineDash([]);
+                guideCtx.fillStyle = '#f59e0b';
+                guideCtx.beginPath();
+                guideCtx.moveTo(endX, endY);
+                guideCtx.lineTo(endX - headLen * Math.cos(arrowAngle - Math.PI / 6), endY - headLen * Math.sin(arrowAngle - Math.PI / 6));
+                guideCtx.lineTo(endX - headLen * Math.cos(arrowAngle + Math.PI / 6), endY - headLen * Math.sin(arrowAngle + Math.PI / 6));
+                guideCtx.closePath();
+                guideCtx.fill();
+            });
+
+            // Pass 2: Draw Numbered Circle Badges on top (Step 1 is red, step 2+ is blue)
+            badges.forEach(b => {
+                const radius = 13;
+                guideCtx.setLineDash([]);
+                guideCtx.beginPath();
+                guideCtx.arc(b.sx, b.sy, radius, 0, 2 * Math.PI);
+                guideCtx.fillStyle = b.step === 1 ? '#ef4444' : '#3b82f6';
+                guideCtx.shadowColor = 'rgba(0,0,0,0.3)';
+                guideCtx.shadowBlur = 5;
+                guideCtx.fill();
+                guideCtx.shadowBlur = 0;
+
+                guideCtx.font = 'bold 12px Fredoka, sans-serif';
+                guideCtx.fillStyle = '#ffffff';
+                guideCtx.textAlign = 'center';
+                guideCtx.textBaseline = 'middle';
+                guideCtx.fillText(b.step.toString(), b.sx, b.sy);
+            });
+
+            guideCtx.restore();
+        }
+
+        function toggleGuideTemplate() {
+            showGuide = !showGuide;
+            const btn = document.getElementById('btn-toggle-guide');
+            if (showGuide) {
+                btn.innerHTML = `<i class="fa-solid fa-eye"></i> Garis Panduan: ON`;
+                btn.className = "px-2.5 py-1 sm:py-1.5 bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold hover:bg-indigo-200 transition-all flex items-center gap-1";
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-eye-slash"></i> Garis Panduan: OFF`;
+                btn.className = "px-2.5 py-1 sm:py-1.5 bg-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-300 transition-all flex items-center gap-1";
+            }
+            drawGuideTemplate();
+        }
+
+        function toggleArrowGuide() {
+            showArrows = !showArrows;
+            localStorage.setItem('tulisceria_arrows', showArrows ? 'on' : 'off');
+            updateArrowGuideUI();
+            drawGuideTemplate();
+        }
+
+        function updateArrowGuideUI() {
+            const btn = document.getElementById('btn-toggle-arrows');
+            const icon = document.getElementById('arrow-icon');
+            const label = document.getElementById('arrow-label');
+
+            if (showArrows) {
+                if (btn) btn.className = "px-2.5 py-1 sm:py-1.5 bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold hover:bg-amber-200 transition-all flex items-center gap-1 shadow-sm";
+                if (icon) icon.className = "fa-solid fa-arrow-trend-up text-amber-600";
+                if (label) label.innerText = "Arah Panah: ON";
+            } else {
+                if (btn) btn.className = "px-2.5 py-1 sm:py-1.5 bg-slate-100 text-slate-500 border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all flex items-center gap-1 shadow-sm";
+                if (icon) icon.className = "fa-solid fa-arrow-trend-down text-slate-400";
+                if (label) label.innerText = "Arah Panah: OFF";
+            }
+        }
+
+        function selectCategory(cat) {
+            currentCategory = cat;
+            currentIndex = 0;
+
+            // Update Tab UI
+            ['uppercase', 'lowercase', 'numbers'].forEach(c => {
+                const btn = document.getElementById(`tab-${c}`);
+                if (c === cat) {
+                    btn.className = "px-3 sm:px-4 py-1.5 rounded-xl font-bold text-sm transition-all bg-amber-400 text-white shadow-sm";
+                } else {
+                    btn.className = "px-3 sm:px-4 py-1.5 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 transition-all";
+                }
+            });
+
+            // Update Label Title Category
+            const titles = {
+                uppercase: 'Huruf Besar (Capital)',
+                lowercase: 'Huruf Kecil',
+                numbers: 'Angka'
+            };
+            document.getElementById('category-title').innerText = titles[cat];
+
+            renderCharGrid();
+            loadQuestion();
+        }
+
+        function renderCharGrid() {
+            const grid = document.getElementById('char-grid');
+            grid.innerHTML = '';
+
+            DATASETS[currentCategory].forEach((item, idx) => {
+                const btn = document.createElement('button');
+                btn.innerText = item.char;
+                btn.onclick = () => jumpToQuestion(idx);
+                
+                const isCurrent = idx === currentIndex;
+                btn.className = `w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center transition-all ${
+                    isCurrent 
+                    ? 'bg-amber-400 text-white shadow-md scale-110' 
+                    : 'bg-white hover:bg-slate-200 text-slate-700 border border-slate-200'
+                }`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQuestion() {
+            const item = DATASETS[currentCategory][currentIndex];
+            document.getElementById('sample-char').innerText = item.char;
+            document.getElementById('word-example').innerText = item.example;
+            
+            const wordEmojiEl = document.getElementById('word-emoji');
+            if (wordEmojiEl) wordEmojiEl.innerText = item.emoji || '✨';
+
+            const emojiEl = document.getElementById('sample-emoji');
+            if (emojiEl) {
+                emojiEl.innerText = item.emoji || '✨';
+            }
+
+            document.getElementById('progress-indicator').innerText = `Soal ${currentIndex + 1} dari ${DATASETS[currentCategory].length}`;
+
+            clearCanvas();
+            renderCharGrid();
+            drawGuideTemplate();
+            speakTargetChar();
+        }
+
+        function jumpToQuestion(idx) {
+            currentIndex = idx;
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentIndex < DATASETS[currentCategory].length - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // Loop kembali ke awal
+            }
+            loadQuestion();
+        }
+
+        function clearCanvas() {
+            paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+        }
+
+        function resetQuestion() {
+            clearCanvas();
+        }
+
+        function setBrushColor(color) {
+            currentBrushColor = color;
+        }
+
+        function setBrushSize(size) {
+            currentBrushSize = size;
+        }
+
+        let isSoundEnabled = localStorage.getItem('tulisceria_sound') !== 'off'; // default ON unless saved OFF
+
+        function toggleSoundMode() {
+            isSoundEnabled = !isSoundEnabled;
+            localStorage.setItem('tulisceria_sound', isSoundEnabled ? 'on' : 'off');
+            updateSoundUI();
+            if (!isSoundEnabled && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function updateSoundUI() {
+            const btn = document.getElementById('btn-toggle-sound');
+            const icon = document.getElementById('sound-icon');
+            const label = document.getElementById('sound-label');
+            const sampleSpeakerBtn = document.getElementById('btn-sample-speaker');
+            const sampleSpeakerIcon = document.getElementById('sample-speaker-icon');
+
+            if (isSoundEnabled) {
+                if (btn) {
+                    btn.className = "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-bold text-xs sm:text-sm border-2 transition-all flex items-center space-x-1.5 bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200 shadow-sm";
+                }
+                if (icon) icon.className = "fa-solid fa-volume-high text-sm sm:text-base text-emerald-600";
+                if (label) label.innerText = "Suara: ON";
+                if (sampleSpeakerBtn) {
+                    sampleSpeakerBtn.className = "bg-indigo-500 hover:bg-indigo-600 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md flex items-center justify-center transition-all hover:scale-110 active:scale-95";
+                    sampleSpeakerBtn.title = "Dengarkan Suara";
+                }
+                if (sampleSpeakerIcon) sampleSpeakerIcon.className = "fa-solid fa-volume-high text-lg sm:text-xl";
+            } else {
+                if (btn) {
+                    btn.className = "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-bold text-xs sm:text-sm border-2 transition-all flex items-center space-x-1.5 bg-slate-100 text-slate-500 border-slate-300 hover:bg-slate-200 shadow-sm";
+                }
+                if (icon) icon.className = "fa-solid fa-volume-xmark text-sm sm:text-base text-slate-400";
+                if (label) label.innerText = "Suara: OFF";
+                if (sampleSpeakerBtn) {
+                    sampleSpeakerBtn.className = "bg-slate-300 hover:bg-slate-400 text-slate-600 w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md flex items-center justify-center transition-all hover:scale-110 active:scale-95";
+                    sampleSpeakerBtn.title = "Suara Mati (Klik untuk dengarkan)";
+                }
+                if (sampleSpeakerIcon) sampleSpeakerIcon.className = "fa-solid fa-volume-xmark text-lg sm:text-xl";
+            }
+        }
+
+        function speakTargetChar(customText = null, isUserInitiated = false) {
+            if (!isSoundEnabled && !isUserInitiated) {
+                return; // Jangan sebutkan jika mode suara OFF dan bukan diklik langsung
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop active speech
+                const item = DATASETS[currentCategory][currentIndex];
+                const textToSpeak = customText || `${item.char}. Contoh kata: ${item.example}`;
+                
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1; // Suara ramah anak
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        async function analyzeWithGemini() {
+            const item = DATASETS[currentCategory][currentIndex];
+            const targetChar = item.char;
+
+            // Buka modal loading
+            openAiModal("Menganalisis Tulisan...", "Mohon tunggu, Gemini AI sedang memeriksa tulisanmu...", [0,0,0], "loading");
+
+            // Ambil data gambar dari canvas
+            const imageDataUrl = paintCanvas.toDataURL('image/png');
+            const base64Data = imageDataUrl.split(',')[1];
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetChar, base64Data })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Gagal terhubung dengan server.");
+                }
+
+                const resData = await response.json();
+
+                // Update Bintang Player
+                if (resData.stars) {
+                    totalStars += resData.stars;
+                    document.getElementById('star-count').innerText = `${totalStars} Bintang`;
+                }
+
+                // Simpan ke Rekap Pengerjaan
+                saveToHistory(targetChar, resData.score || 85, resData.stars || 3, resData.feedback || "Bagus sekali!", imageDataUrl);
+
+                // Tampilkan Modal Feedback
+                openAiModal(
+                    resData.isCorrect !== false ? "Wah, Luar Biasa! 🎉" : "Ayo Coba Lagi! 💪",
+                    resData.feedback || "Hebat sekali!",
+                    getStarArray(resData.stars || 3),
+                    resData.isCorrect !== false ? "success" : "retry"
+                );
+
+                // Ucapkan umpan balik AI
+                speakTargetChar(resData.feedback);
+
+            } catch (err) {
+                console.error(err);
+                // Fallback jika API bermasalah/offline
+                const fallbackFeedback = "Bagus sekali usaha tulismu! Teruskan berlatih ya agar makin rapi!";
+                openAiModal("Hebat Sekali!", fallbackFeedback, [1,1,1], "success");
+                speakTargetChar(fallbackFeedback);
+            }
+        }
+
+        function getStarArray(starCount) {
+            const arr = [0, 0, 0];
+            for (let i = 0; i < Math.min(starCount, 3); i++) {
+                arr[i] = 1;
+            }
+            return arr;
+        }
+
+        function openAiModal(title, text, starsArray, state) {
+            const modal = document.getElementById('ai-modal');
+            document.getElementById('ai-modal-title').innerText = title;
+            document.getElementById('ai-feedback-text').innerText = text;
+
+            // Stars Rendering
+            const starContainer = document.getElementById('star-rating');
+            starContainer.innerHTML = '';
+            starsArray.forEach(filled => {
+                const icon = document.createElement('i');
+                icon.className = filled ? "fa-solid fa-star text-amber-400" : "fa-regular fa-star text-slate-300";
+                starContainer.appendChild(icon);
+            });
+
+            // Icon Status
+            const iconBox = document.getElementById('ai-status-icon');
+            if (state === "loading") {
+                iconBox.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-indigo-500"></i>`;
+                iconBox.className = "w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-4xl shadow-inner";
+            } else if (state === "success") {
+                iconBox.innerHTML = `<i class="fa-solid fa-face-smile-beam text-emerald-500"></i>`;
+                iconBox.className = "w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-4xl shadow-inner";
+            } else {
+                iconBox.innerHTML = `<i class="fa-solid fa-face-light-bulb text-amber-500"></i>`;
+                iconBox.className = "w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3 text-4xl shadow-inner";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeAiModal() {
+            document.getElementById('ai-modal').classList.add('hidden');
+        }
+
+        function saveToHistory(char, score, stars, feedback, thumbnail) {
+            const existingIndex = completedHistory.findIndex(item => item.char === char && item.category === currentCategory);
+            
+            const historyItem = {
+                char,
+                category: currentCategory,
+                score,
+                stars,
+                feedback,
+                thumbnail,
+                timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            if (existingIndex >= 0) {
+                completedHistory[existingIndex] = historyItem;
+            } else {
+                completedHistory.push(historyItem);
+            }
+
+            updateSummaryUI();
+        }
+
+        function updateSummaryUI() {
+            document.getElementById('summary-total-completed').innerText = `${completedHistory.length} Soal`;
+            document.getElementById('summary-total-stars').innerText = `${totalStars} ★`;
+
+            const listContainer = document.getElementById('summary-list');
+            
+            if (completedHistory.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 font-quicksand font-bold text-sm">
+                        Belum ada soal yang dikerjakan. Ayo mulai menulis!
+                    </div>`;
+                return;
+            }
+
+            listContainer.innerHTML = '';
+            completedHistory.forEach(item => {
+                const el = document.createElement('div');
+                el.className = "bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center justify-between gap-3";
+                
+                let starsHtml = '';
+                for (let i = 0; i < 3; i++) {
+                    starsHtml += i < item.stars ? '<i class="fa-solid fa-star text-amber-400"></i>' : '<i class="fa-regular fa-star text-slate-300"></i>';
+                }
+
+                el.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${item.thumbnail}" class="w-12 h-12 rounded-xl bg-white border border-slate-300 object-contain p-0.5" />
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="font-bold text-slate-800 text-lg">Karakter "${item.char}"</span>
+                                <span class="text-xs text-amber-500 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">${starsHtml}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 font-quicksand font-bold">${item.feedback}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-slate-400">${item.timestamp}</span>
+                    </div>
+                `;
+                listContainer.appendChild(el);
+            });
+        }
+
+        function openSummaryModal() {
+            updateSummaryUI();
+            document.getElementById('summary-modal').classList.remove('hidden');
+        }
+
+        function closeSummaryModal() {
+            document.getElementById('summary-modal').classList.add('hidden');
+        }
+
+        function resetAllProgress() {
+            completedHistory = [];
+            totalStars = 0;
+            document.getElementById('star-count').innerText = "0 Bintang";
+            document.getElementById('overall-ai-box').classList.add('hidden');
+            updateSummaryUI();
+        }
+
+        async function generateOverallAiRecap() {
+            if (completedHistory.length === 0) {
+                alertModal("Belum Ada Data", "Silakan kerjakan minimal 1 soal terlebih dahulu sebelum membuat analisis rekap.");
+                return;
+            }
+
+            const aiBox = document.getElementById('overall-ai-box');
+            const aiText = document.getElementById('overall-ai-text');
+            aiBox.classList.remove('hidden');
+            aiText.innerText = "Gemini AI sedang menganalisis seluruh hasil belajar anak... Mohon tunggu sebentar.";
+
+            try {
+                const response = await fetch('/api/recap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ completedHistory })
+                });
+
+                const result = await response.json();
+                if (result.recapText) {
+                    aiText.innerText = result.recapText;
+                } else {
+                    aiText.innerText = "Anak menunjukkan semangat belajar yang luar biasa! Pertahankan konsistensi berlatih menulis untuk melatih kontrol tangan.";
+                }
+            } catch (err) {
+                console.error(err);
+                aiText.innerText = "Anak menunjukkan perkembangan belajar yang positif. Terus dampingi anak saat berlatih menulis setiap hari.";
+            }
+        }
+
+        function downloadDocReport() {
+            if (completedHistory.length === 0) {
+                alertModal("Laporan Kosong", "Belum ada riwayat pengerjaan untuk diunduh.");
+                return;
+            }
+
+            const overallText = document.getElementById('overall-ai-text').innerText;
+            
+            let tableRows = '';
+            completedHistory.forEach((item, index) => {
+                tableRows += `
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">${index + 1}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 18pt; font-weight: bold; color: #2563eb;">${item.char}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">${item.stars} / 3 Bintang (${item.score} pt)</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 8px;">${item.feedback}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">
+                            <img src="${item.thumbnail}" width="70" height="70" style="border:1px solid #ccc; border-radius:8px;" />
+                        </td>
+                    </tr>`;
+            });
+
+            const docHTML = `
+                <html xmlns:o='urn:schemas-microsoft-microsoft-com:office:office' 
+                      xmlns:w='urn:schemas-microsoft-microsoft-com:office:word' 
+                      xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Laporan Hasil Belajar Menulis</title>
+                    <style>
+                        body { font-family: 'Calibri', 'Arial', sans-serif; color: #1e293b; padding: 20px; }
+                        h1 { color: #f59e0b; text-align: center; }
+                        .header-box { background-color: #fef3c7; border: 2px solid #fde047; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+                        .ai-box { background-color: #e0e7ff; border: 2px solid #c7d2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        th { background-color: #3b82f6; color: white; border: 1px solid #cbd5e1; padding: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>LAPORAN HASIL BELAJAR MENULIS PAUD / TK</h1>
+                    
+                    <div class="header-box">
+                        <p><strong>Aplikasi:</strong> TulisCeria - Modul Interaktif</p>
+                        <p><strong>Tanggal Pengerjaan:</strong> ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p><strong>Total Soal Diselesaikan:</strong> ${completedHistory.length} Karakter</p>
+                        <p><strong>Total Bintang Diperoleh:</strong> ${totalStars} Bintang</p>
+                    </div>
+
+                    <div class="ai-box">
+                        <h3>Catatan Evaluasi Gemini AI:</h3>
+                        <p>${overallText}</p>
+                    </div>
+
+                    <h3>Rincian Pengerjaan Soal:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Karakter</th>
+                                <th>Skor / Bintang</th>
+                                <th>Catatan Guru Gemini</th>
+                                <th>Hasil Tulisan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+
+                    <br/><br/>
+                    <p style="text-align: right; font-size: 10pt; color: #64748b;">Dicetak otomatis oleh TulisCeria System</p>
+                </body>
+                </html>
+            `;
+
+            // Download file .doc melalui Blob
+            const blob = new Blob(['\ufeff' + docHTML], {
+                type: 'application/msword'
+            });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_Belajar_Menulis_${new Date().toISOString().slice(0,10)}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Custom Helper Alert Modal sebagai pengganti alert() bawaan
+        function alertModal(title, message) {
+            openAiModal(title, message, [0,0,0], "retry");
+        }
+
+        window.onload = function() {
+            setupCanvasSize();
+            initDrawingEvents();
+            updateSoundUI();
+            updateArrowGuideUI();
+            selectCategory('uppercase');
+        };
+    </script>
+</body>
+</html>
